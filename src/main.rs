@@ -1,6 +1,10 @@
 use actix_web::{web, App, HttpServer, HttpResponse, Error, HttpRequest};
 use actix_web_actors::ws;
 use actix_web_actors::ws::Message;
+use std::collections::HashMap;
+use std::sync::{Arc, Mutex};
+use tokio::sync::mpsc::{UnboundedSender, unbounded_channel};
+use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use log::info;
 
@@ -11,6 +15,18 @@ type Rooms = Arc<Mutex<HashMap<String,Vec<Tx>>>;
 // Struct represent who clients-sessions
 struct WsSession {
     id: String,
+    tx: Option<Tx>,
+    romms: Rooms,
+}
+
+impl WsSession {
+    fn new(rooms: Rooms) -> Self {
+        Self {
+            id: Uuid::new_v4().to_string(),
+            tx: None,
+            rooms,
+        }
+    }
 }
 
 // Route upgrade from HTTP to WebSocket 
@@ -20,8 +36,12 @@ async fn ws_route(req: HttpRequest, stream: web::Payload) -> Result<HttpResponse
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
+
+    let rooms: Rooms = Arc::new(Mutex::new(HashMap::new()));
+
     HttpServer::new(move || {
         App::new()
+          .app_data(web::Data::new(rooms.clone()))  
           .route("/", web::get().to(|| async {HttpResponse::Ok().body("Hello Actix ! ") }))
           .route("/ws", web::get().to(ws_route))
 
@@ -31,13 +51,43 @@ async fn main() -> std::io::Result<()> {
     .await
 }
 
+async fn handle_websocket(
+    req: HttpRequest, 
+    stream: web::Payload, 
+    rooms: web::Data<Rooms>,
+) -> Result<HttpResponse, Error> {
+    ws::start(
+        WsSession::new(rooms.get_ref().clone()), 
+        &req,
+        stream,
+    )
+}
 
+
+// Handle stream 
 impl StreamHandler<Result<Message, ws::ProtocolError>> for WsSession {
     fn handle(&mut self, msg: Result<Message, ws::ProtocolError>, ctx: &mut Self::Context) {
         match msg {
             Ok(message::Text(text)) => {
                 ctx.text(format! )
             }
+        }
+    }
+}
+
+impl actix::StreamHandler<Result<ws::Message, ws::ProtocolError>> for WsSession {
+    fn handle(&mut self, msg: Result<ws::Message, ws::ProtocolError>, ctx: &mut Self::Context) {
+        match msg {
+            Ok(ws::Message::Text(text)) => {
+                ctx.text(format!("Echo: {}", text));  // echo test
+                info!("Message de {}: {}", self.id, text);
+            }
+            Ok(ws::Message::Ping(data)) => ctx.pong(&data),
+            Ok(ws::Message::Close(reason)) => {
+                ctx.close(reason);
+                ctx.stop();
+            }
+            _ => {}  
         }
     }
 }
