@@ -6,7 +6,7 @@ A high-performance, real-time WebRTC signaling server built with Rust and Actix,
 
 The server acts as the signaling backbone for WebRTC connections while maintaining complete privacy—all media streams flow directly between participants, ensuring patient confidentiality and compliance with healthcare data protection regulations.
 
-## 🚀 Key Features
+## Key Features
 
 - **Secure Session Management**: Creates isolated consultation rooms with unique IDs for each session
 - **Dynamic Room Handling**: Automatically manages room creation and cleanup when sessions end
@@ -60,7 +60,7 @@ The server facilitates the WebRTC handshake process:
 - **Automatic Cleanup**: Rooms are destroyed when empty
 - **Connection Validation**: Validates client connections before allowing room access
 
-## 📋 Prerequisites
+##  Prerequisites
 
 Before starting the server, ensure you have:
 
@@ -90,7 +90,7 @@ const DEFAULT_HOST: &str = "127.0.0.1";
 const DEFAULT_PORT: u16 = 3000;
 ```
 
-## 🚀 Starting the Server
+##  Starting the Server
 
 ### Development Mode (Recommended)
 ```bash
@@ -142,7 +142,7 @@ ws.send(JSON.stringify({
 }));
 ```
 
-## 🔌 Integration with Frontend
+##  Integration with Frontend
 
 ### WebSocket Connection
 ```javascript
@@ -177,7 +177,7 @@ ws.onmessage = (event) => {
 };
 ```
 
-## 🏗️ Architecture Overview
+##  Architecture Overview
 
 ```
 ┌─────────────────┐    WebSocket     ┌──────────────────┐
@@ -203,7 +203,7 @@ ws.onmessage = (event) => {
 └─────────────────┘
 ```
 
-## 🔍 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -246,7 +246,7 @@ Run with debug logging:
 RUST_LOG=debug cargo run
 ```
 
-## 📊 Monitoring & Logs
+##  Monitoring & Logs
 
 ### Health Check Endpoint
 ```bash
@@ -262,7 +262,7 @@ The server logs all connections and messages:
 [INFO] Client left room: consultation-room-1
 ```
 
-## 🔒 Security Considerations
+##  Security Considerations
 
 - **No Media Storage**: Server never stores video/audio data
 - **Session Isolation**: Each room is completely isolated
@@ -270,48 +270,13 @@ The server logs all connections and messages:
 - **Automatic Cleanup**: Rooms are destroyed when empty
 - **Rate Limiting**: Built-in protection against spam
 
-## 🚀 Production Deployment
 
-### Docker (Recommended)
-```dockerfile
-FROM rust:1.70 as builder
-WORKDIR /app
-COPY . .
-RUN cargo build --release
-
-FROM debian:bullseye-slim
-RUN apt-get update && apt-get install -y ca-certificates
-COPY --from=builder /app/target/release/video-signaling /usr/local/bin/
-EXPOSE 3000
-CMD ["video-signaling"]
-```
-
-### Environment Variables
-```bash
-PORT=3000
-HOST=0.0.0.0
-RUST_LOG=info
-```
-
-## 📈 Performance
+## Performance
 
 - **Concurrent Connections**: Handles 1000+ simultaneous connections
 - **Memory Usage**: ~10MB base memory footprint
 - **Latency**: <1ms message relay time
 - **Throughput**: 10,000+ messages/second
 
-## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## 📄 License
-
-This project is part of the JoyatWork Zenith Control platform.
-
----
-
-**Need Help?** Check the troubleshooting section or create an issue in the repository.
+**Need Help?** Create an issue in the repository.
