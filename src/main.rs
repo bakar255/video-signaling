@@ -3,6 +3,7 @@ use actix_web_actors::ws;
 use std::collections::{HashMap, HashSet};
 use std::sync::{Arc, Mutex};
 use serde::{Deserialize, Serialize};
+use actix_cors::Cors;
 use serde_json;
 use uuid::Uuid;
 use log::{info, warn};
@@ -239,12 +240,16 @@ async fn ws_route(
     clients: web::Data<Clients>,
     rooms: web::Data<Rooms>,
 ) -> Result<HttpResponse, Error> {
-    ws::start(
+    info!(" Nouvelle connexion WebSocket attempt");
+    let result = ws::start(
         SignalingSession::new(clients.get_ref().clone(), rooms.get_ref().clone()),
         &req,
         stream,
-    )
+    );
+    info!("Connexion WebSocket result: {:?}", result.is_ok());
+    result
 }
+
 
 // Route to see if server is working
 async fn health_check() -> HttpResponse {
@@ -262,16 +267,23 @@ async fn main() -> std::io::Result<()> {
     let clients: Clients = Arc::new(Mutex::new(HashMap::new()));
     let rooms: Rooms = Arc::new(Mutex::new(HashMap::new()));
 
-    info!("🚀 Serveur de signalisation WebRTC démarré sur 127.0.0.1:3000");
+    info!(" Serveur de signalisation WebRTC démarré sur 127.0.0.1:8080");
     
     HttpServer::new(move || {
+        let cors = Cors::default()
+        .allow_any_origin()
+        .allow_any_method()
+        .allow_any_header()
+        .supports_credentials();
+
         App::new()
+            .wrap(cors)
             .app_data(web::Data::new(clients.clone()))
             .app_data(web::Data::new(rooms.clone()))
             .route("/health", web::get().to(health_check))
             .route("/ws", web::get().to(ws_route))
     })
-    .bind(("127.0.0.1", 3000))?
+    .bind(("0.0.0.0", 3000))?
     .run()
     .await
 }
