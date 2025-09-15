@@ -16,7 +16,7 @@ The server acts as the signaling backbone for WebRTC connections while maintaini
 - **Health Monitoring**: Built-in health check endpoints for monitoring
 - **Cross-Platform**: Runs on Windows, Linux, and macOS
 
-## 🔧 What Does the Signaling Server Do?
+##  What Does the Signaling Server Do?
 
 ### Core Functionality
 
@@ -69,7 +69,7 @@ Before starting the server, ensure you have:
 - **Port 3000** available on your system
 - **Network access** for WebSocket connections
 
-## 🛠️ Installation & Setup
+##  Installation & Setup
 
 ### Step 1: Clone and Navigate
 ```bash
@@ -108,7 +108,7 @@ cargo build --release
 PORT=8080 cargo run
 ```
 
-## ✅ Verification
+## Verification
 
 ### 1. Check Server Status
 Open your browser and visit:
@@ -131,8 +131,8 @@ You can test the WebSocket connection using browser dev tools:
 ```javascript
 // Open browser console and run:
 const ws = new WebSocket('ws://localhost:3000/ws');
-ws.onopen = () => console.log('✅ Connected to signaling server');
-ws.onmessage = (event) => console.log('📨 Received:', JSON.parse(event.data));
+ws.onopen = () => console.log(' Connected to signaling server');
+ws.onmessage = (event) => console.log(' Received:', JSON.parse(event.data));
 
 // Test joining a room:
 ws.send(JSON.stringify({
